@@ -1,8 +1,24 @@
 import React, { Component } from 'react';
 import { AsyncStorage } from 'react-native';
-import { StyleSheet, Text, Alert, TouchableOpacity, TextInput, View } from 'react-native';
+import { 
+  Text, 
+  Alert, 
+  TouchableOpacity, 
+  TextInput, 
+  View 
+} from 'react-native';
+import { db } from '../config';
+
+import User from '../../User';
+import styles from '../constants/styles';
+
 
 export default class LoginScreen extends Component {
+
+  static navigationOptions = {
+    header: null
+  }
+
   state = {
     phone: '',
     name: ''
@@ -15,6 +31,11 @@ export default class LoginScreen extends Component {
       Alert.alert('Error', 'Nome em Branco');
     } else {
       await AsyncStorage.setItem('userPhone', this.state.phone);
+      User.phone = this.state.phone;
+      db.ref('users/' + User.phone).set({ 
+        name: this.state.name
+      });
+      this.props.navigation.navigate('App');
     }
   }
 
@@ -46,23 +67,4 @@ export default class LoginScreen extends Component {
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  input: {
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    width: '90%',
-    marginBottom: 10,
-    borderRadius: 5,
-  },
-  btnText: {
-    color: 'darkblue',
-    fontSize: 20
-  }
-});
+

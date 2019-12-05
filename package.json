@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "postinstall": "jetifier -r",
+    "postinstall": "jetifier",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "web": "expo start --web",
@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "expo": "^35.0.0",
+    "firebase": "^7.5.0",
     "react": "16.8.3",
     "react-dom": "16.8.3",
     "react-native": "0.59.10",
