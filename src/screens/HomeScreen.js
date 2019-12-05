@@ -1,13 +1,19 @@
 import React, { Component } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, AsyncStorage, FlatList} from 'react-native';
+import { SafeAreaView, View, Text, Image, TouchableOpacity, FlatList} from 'react-native';
 import User from '../../User';
-import styles from '../constants/styles';
 import { db } from '../config';
 
 export default class HomeScreen extends Component {
     
-    static navigationOptions = {
-        title: 'Chats'
+    static navigationOptions = ({ navigation }) => {
+        return {
+            title: 'Chats',
+            headerRight: (
+                <TouchableOpacity onPress={()=> navigation.navigate('Profile') }>
+                    <Image source={require('../images/user.png')} style={{ width: 32, height: 32, marginRight: 7 }} />
+                </TouchableOpacity>
+            )
+        }
     }
 
     state = {
@@ -30,11 +36,6 @@ export default class HomeScreen extends Component {
                 });
             }
         });
-    }
-
-    _logOut = async () => {
-        await AsyncStorage.clear();
-        this.props.navigation.navigate('Auth');
     }
 
     rendeRow = ({ item }) => {

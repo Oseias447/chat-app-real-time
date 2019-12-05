@@ -1,9 +1,9 @@
 {
   "devToolsPort": 19002,
   "expoServerPort": 19000,
-  "packagerPort": 19003,
-  "packagerPid": 4892,
-  "expoServerNgrokUrl": "https://wj-vpz.anonymous.chat-app-real-time.exp.direct",
-  "packagerNgrokUrl": "https://packager.wj-vpz.anonymous.chat-app-real-time.exp.direct",
-  "ngrokPid": 4924
+  "packagerPort": 19001,
+  "packagerPid": 3838,
+  "expoServerNgrokUrl": "https://zt-jyg.anonymous.awesomeproject.exp.direct",
+  "packagerNgrokUrl": "https://packager.zt-jyg.anonymous.awesomeproject.exp.direct",
+  "ngrokPid": 3929
 }

@@ -6,8 +6,14 @@ import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import AuthLoadingScreen from './src/screens/AuthLoadingScreen';
 import ChatScreen from './src/screens/ChatScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
 
-const AppStack = createStackNavigator({ Home: HomeScreen, Chat: ChatScreen });
+const AppStack = createStackNavigator({ 
+  Home: HomeScreen, 
+  Chat: ChatScreen,
+  Profile: ProfileScreen 
+});
+
 const AuthStack = createStackNavigator({ Login: LoginScreen });
 const AuthLoadingStack = createStackNavigator({ AuthLoading: AuthLoadingScreen });
 
