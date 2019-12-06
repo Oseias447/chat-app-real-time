@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { SafeAreaView, View, Text, Image, TouchableOpacity, FlatList} from 'react-native';
+import { SafeAreaView, View, Text, Image, TouchableOpacity, FlatList, Dimensions} from 'react-native';
 import User from '../../User';
 import { db } from '../config';
 
@@ -7,22 +7,18 @@ export default class HomeScreen extends Component {
     
     static navigationOptions = ({ navigation }) => {
         return {
-            title: 'Chats',
-            headerRight: (
-                <TouchableOpacity onPress={()=> navigation.navigate('Profile') }>
-                    <Image source={require('../images/user.png')} style={{ width: 32, height: 32, marginRight: 7 }} />
-                </TouchableOpacity>
-            )
+            title: 'Chats'
         }
     }
 
     state = {
-        users: []
+        users: [],
+        dbRef: db.ref('users'),
     }
 
-    componentWillMount() {
-        let dbRef = db.ref('users');
-        dbRef.on('child_added', (val) => {
+
+    componentDidMount() {
+        this.state.dbRef.on('child_added', (val) => {
             let person = val.val();
             person.phone = val.key;
 
@@ -38,7 +34,11 @@ export default class HomeScreen extends Component {
         });
     }
 
-    rendeRow = ({ item }) => {
+    componentWillMount() {
+        this.state.dbRef.off()
+    }
+
+    renderRow = ({ item }) => {
         return(
             <TouchableOpacity 
                 onPress={() => this.props.navigation.navigate('Chat', item)}
@@ -50,12 +50,14 @@ export default class HomeScreen extends Component {
 
     render() {
 
+        const { height } = Dimensions.get('window');
         return(
             <SafeAreaView>
-                <FlatList 
-                data={this.state.users}
-                renderItem={this.rendeRow}
-                keyExtractor={ (item)=> item.phone }
+                <FlatList
+                    style={{ height }} 
+                    data={this.state.users}
+                    renderItem={this.renderRow}
+                    keyExtractor={ (item)=> item.phone }
                 />
             </SafeAreaView>
         )

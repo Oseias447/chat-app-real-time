@@ -7,8 +7,6 @@ import {
   View,
 } from 'react-native';
 
-import firebase from 'firebase';
-
 import User from '../../User'; 
 
 export default class AuthLoadingScreen extends Component {

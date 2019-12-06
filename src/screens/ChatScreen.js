@@ -1,9 +1,11 @@
 import React from 'react';
-import { SafeAreaView, View, Text, Dimensions, TextInput, TouchableOpacity, FlatList } from 'react-native';
+import { KeyboardAvoidingView, View, Image, Animated, Text, Dimensions, Keyboard, Platform, TextInput, TouchableOpacity, FlatList } from 'react-native';
 import styles from '../constants/styles';
 import { db } from '../config';
 import User from '../../User';
 import firebase from 'firebase';
+
+const isIOS = Platform.OS === 'ios';
 
 export default class ChatScreen extends React.Component {
 
@@ -21,12 +23,20 @@ export default class ChatScreen extends React.Component {
                 phone: props.navigation.getParam('phone')
             },
             textMessage: '',
-            messageList: []
+            messageList: [],
+            dbRef: firebase.database().ref('messages')
         }
+        this.keyboardHeight = new Animated.Value(0);
+        this.bottomPadding = new Animated.Value(60);
     }
-
-    componentWillMount() {
-        firebase.database().ref('messages').child(User.phone).child(this.state.person.phone)
+ 
+    componentDidMount() {
+        this.keyboardShowListener = Keyboard.addListener(isIOS ? 'keyboardWillShow' : 'keyboardDidShow',
+            (e) => this.keyboardEvent(e, true));
+        this.keyboardHideListener = Keyboard.addListener(isIOS ? 'keyboardWillHide' : 'keyboardDidHide',
+            (e) => this.keyboardEvent(e, false));
+        
+        this.state.dbRef.child(User.phone).child(this.state.person.phone)
             .on('child_added', (value)=> {
                 this.setState((prevState)=> {
                     return {
@@ -34,6 +44,28 @@ export default class ChatScreen extends React.Component {
                     }
                 })
             })
+    }
+
+    componentWillUnmount() {
+        this.state.dbRef.off();
+        this.keyboardShowListener.remove();
+        this.keyboardHideListener.remove();
+    }
+
+    keyboardEvent = (event, isShow) => {
+        let heightOS = isIOS ? 60 : 80;
+        let bottomOS = isIOS ? 120 : 140;
+
+        Animated.parallel([
+            Animated.timing(this.keyboardHeight, {
+                duration: event,
+                toValue: isShow ? heightOS : 0
+            }),
+            Animated.timing(this.bottomPadding, {
+                duration: event,
+                toValue: isShow ? bottomOS : 60
+            })
+        ]).start();
     }
 
     handleChange = key => val => {
@@ -56,7 +88,7 @@ export default class ChatScreen extends React.Component {
         return(
             <View style={{
                 flexDirection: 'row',
-                width: '60%',
+                maxWidth: '60%',
                 alignSelf: item.from === User.phone ? 'flex-end' : 'flex-start',
                 backgroundColor: item.from === User.phone ? '#00897b' : '#7cb342',
                 borderRadius: 5,
@@ -72,7 +104,7 @@ export default class ChatScreen extends React.Component {
     
     sendMessage = async () => {
         if (this.state.textMessage.length > 0) {
-            const msgId = firebase.database().ref('messages').child(User.phone).child(this.state.person.phone).push().key;
+            const msgId = this.state.dbRef.child(User.phone).child(this.state.person.phone).push().key;
             const updates = {};
             const message = {
                 message: this.state.textMessage,
@@ -80,37 +112,41 @@ export default class ChatScreen extends React.Component {
                 from: User.phone
             }
 
-            updates['messages/' + User.phone + '/' + this.state.person.phone + '/' + msgId] = message;
-            updates['messages/' + this.state.person.phone + '/' + User.phone + '/' + msgId] = message;
-            firebase.database().ref().update(updates);
+            updates[ User.phone + '/' + this.state.person.phone + '/' + msgId] = message;
+            updates[ this.state.person.phone + '/' + User.phone + '/' + msgId] = message;
+            this.state.dbRef.update(updates);
             this.setState({ textMessage: ''});
         } 
     }
 
     render() {
-        const {height, width } = Dimensions.get('window');
+        const { height } = Dimensions.get('window');
 
         return(
-            <SafeAreaView>
+            <KeyboardAvoidingView behavior="height" style={{ flex: 1}}>
+                <Animated.View style={[styles.bottomBar, {bottom: this.keyboardHeight}]}> 
+                    <TextInput 
+                        style={styles.inputMessage}
+                        value={this.state.textMessage}
+                        placeholder="Digite a mensagem..."
+                        onChangeText={this.handleChange('textMessage')}
+                        />
+
+                        <TouchableOpacity onPress={this.sendMessage} style={styles.sendButton}>
+                            <Image source={require('../images/send.png')} style={{tintColor: 'white', resizeMode:'contain', height: 20}} />
+                        </TouchableOpacity>
+                    </Animated.View>
                 <FlatList
-                    style={{padding: 10, height: height * 0.8}}
+                    ref={ref => this.flatlist = ref }
+                    onContentSizeChange={()=> this.flatlist.scrollToEnd({animated: true})}
+                    onLayout={()=> this.flatlist.scrollToEnd({animated: true})}
+                    style={{paddingTop: 5, paddingHorizontal: 5, height}}
                     data={this.state.messageList}
                     renderItem={this.renderRow}
                     keyExtractor={(item, index) => index.toString()}
+                    ListFooterComponent={<Animated.View style={{height: this.bottomPadding}}/>}
                 />
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 5 }}> 
-                <TextInput 
-                    style={styles.input}
-                    value={this.state.textMessage}
-                    placeholder="Digite a mensagem..."
-                    onChangeText={this.handleChange('textMessage')}
-                    />
-
-                    <TouchableOpacity onPress={this.sendMessage} style={{ paddingBottom: 10, marginLeft: 5 }}>
-                        <Text style={styles.btnText}>Enviar</Text>
-                    </TouchableOpacity>
-                </View>
-            </SafeAreaView>
+            </KeyboardAvoidingView>
         )
     }
 }
