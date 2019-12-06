@@ -1,9 +1,9 @@
 {
   "devToolsPort": 19002,
-  "expoServerPort": 19000,
-  "packagerPort": 19001,
-  "packagerPid": 30490,
-  "expoServerNgrokUrl": "https://zt-jyg.anonymous.chat-app-real-time.exp.direct",
-  "packagerNgrokUrl": "https://packager.zt-jyg.anonymous.chat-app-real-time.exp.direct",
-  "ngrokPid": 30533
+  "expoServerPort": null,
+  "packagerPort": null,
+  "packagerPid": null,
+  "expoServerNgrokUrl": null,
+  "packagerNgrokUrl": null,
+  "ngrokPid": null
 }
